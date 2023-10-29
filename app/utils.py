@@ -1,16 +1,10 @@
 import time
-import ntptime
 import network
 import machine
 import neopixel
-   
+
 import app.secrets as secrets
 
-def download_and_install_update_if_available():
-    from lib.ota_updater import OTAUpdater
-        
-    o = OTAUpdater(secrets.GIT_URL)
-    o.install_update_if_available_after_boot(secrets.WIFI_SSID, secrets.WIFI_PASSWORD)
 
 def format_time( datetimetuple ) -> str:
     return f"{datetimetuple[3]}:{datetimetuple[4]:02}:{datetimetuple[5]:02}"
@@ -107,6 +101,8 @@ def sync_time_with_ntp(retries: int = 5) -> bool:
     """
     Utility function to sync the localtime with the NTP server output.
     """
+    import time
+    import ntptime
     
     sync_successful = False
     

@@ -4,7 +4,7 @@ Helper class to wrap different kinds of temperature sensors
 
 from machine import Pin, ADC, SoftI2C
 
-from lib.bmp280 import *
+from ..lib.bmp280 import *
 
 class PressureTempSensor:
     """

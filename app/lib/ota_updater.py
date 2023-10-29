@@ -34,6 +34,7 @@ class OTAUpdater:
         """
 
         (current_version, latest_version) = self._check_for_new_version()
+        
         if latest_version > current_version:
             print('New version available, will download and install on next reboot')
             self._create_new_version_file(latest_version)
@@ -248,6 +249,7 @@ class OTAUpdater:
 
     def modulepath(self, path):
         return self.module + '/' + path if self.module else path
+
 
 
 

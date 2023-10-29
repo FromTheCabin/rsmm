@@ -1,49 +1,32 @@
-from app.ota_updater import OTAUpdater
+import gc
+import app.utils as utils
+import app.secrets as secrets
+#import app.config = config
 
-def connectToWifiAndUpdate():
-    import time, machine, network, gc, app.secrets as secrets
-    time.sleep(1)
-    print('Memory free', gc.mem_free())
+def initialize():
+    # Connect to wifi and start the app
+    utils.connect_to_wifi()
 
-    from app.ota_updater import OTAUpdater
+    # Check for updates
+    utils.download_and_install_update_if_available()
 
-    sta_if = network.WLAN(network.STA_IF)
+    # Attempt to sync the RTC with the NTP server.
+    # If successful, adjust the system's localtime with
+    # the provided UTC offset.
+    if utils.sync_time_with_ntp():
+        utils.apply_utc_offset_to_rtc(secrets.UTC_OFFSET)
+
     
-    print(f"WIFI_SSID: {secrets.WIFI_SSID}")
-    print(f"WIFI_PASSWORD: {secrets.WIFI_PASSWORD}")
-    
-    if not sta_if.isconnected():
-        print('connecting to network...')
-        sta_if.active(True)
-        try:
-            sta_if.connect(secrets.WIFI_SSID, secrets.WIFI_PASSWORD)
-        except OSError as error:
-            print(error)
-        
-        while not sta_if.isconnected():
-            pass
-        
-    print('network config:', sta_if.ifconfig())
-    otaUpdater = OTAUpdater('https://github.com/FromTheCabin/rsmm.git', main_dir='app', secrets_file="secrets.py")
-    hasUpdated = otaUpdater.install_update_if_available()
-    print('here')
-    if hasUpdated:
-        machine.reset()
-    else:
-        del(otaUpdater)
-        gc.collect()
-
-def startApp():
+def start_app():
     """
     
     Simple entrypoint for the app
     
     """
+    
     import app.start
 
 
-connectToWifiAndUpdate()
-startApp()
-
-
+initialize()
+start_app()
 

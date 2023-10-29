@@ -1,4 +1,5 @@
 import gc
+import machine
 import app.utils as utils
 import app.secrets as secrets
 #import app.config = config
@@ -8,7 +9,14 @@ from app.lib.ota_updater import OTAUpdater
 def download_and_install_update_if_available():
         
     o = OTAUpdater(secrets.GIT_URL, main_dir='app', secrets_file="secrets.py")
-    o.check_for_update_to_install_during_next_reboot()
+    
+    # Check for new version
+    #o.check_for_update_to_install_during_next_reboot()
+        
+    
+    if o.install_update_if_available():
+        machine.reset()
+    
     #o.download_install_update_if_available_after_boot(secrets.WIFI_SSID, secrets.WIFI_PASSWORD)
 
 
@@ -38,4 +46,5 @@ def start_app():
 
 initialize()
 start_app()
+
 

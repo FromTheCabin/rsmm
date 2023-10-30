@@ -15,11 +15,11 @@ class TemperatureSensor:
     def temp_F(self) -> float:
         return round( ((self.__get_temp_c() * 9/5) + 32.0 ),2)
     
-    def __init__(self, pin_num: int, ic2_addr: str ):
-        self._pin = Pin(pin_num, Pin.IN )
-        self._i2c_addr = ic2_addr
+    def __init__(self, i2c_pin: int, i2c_addr: str ):
+        self._i2c_pin = Pin(i2c_pin, Pin.IN )
+        self._i2c_addr = i2c_addr
         
-        self._ds_sensor = ds18x20.DS18X20(onewire.OneWire(self._pin))
+        self._ds_sensor = ds18x20.DS18X20(onewire.OneWire(self._i2c_pin))
 
         # Request the rom variables
         roms = self._ds_sensor.scan()
@@ -36,3 +36,4 @@ class TemperatureSensor:
     def __get_temp_c(self) -> float:
         self._ds_sensor.convert_temp()
         return round(self._ds_sensor.read_temp(self._rom), 2)
+

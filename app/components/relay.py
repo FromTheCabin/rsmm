@@ -9,12 +9,17 @@ class Relay:
      Helper class for a standard relay
     """
     @property
-    def relay_on(self):
+    def state(self) -> str:
+        return "on" if not self.energized and not self._normally_open else "off"
+        
+    @property
+    def energized(self):
         return self._pin.value() == self._activate_is_high
     
-    def __init__(self, pin_num: pin_num):
+    def __init__(self, pin_num: pin_num, normally_open: bool = True ):
         self._pin = Pin(pin_num, Pin.OUT)
         self._activate_is_high = True
+        self._normally_open = normally_open
         
     def activate(self):
         #self._pin.value(self._activate_is_high)
@@ -30,3 +35,4 @@ class Relay:
     
     def __str__(self):
         return __repr__()
+

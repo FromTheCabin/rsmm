@@ -19,4 +19,5 @@ class VoltageSensor():
         self._correction_val = correction_val
         
     def __get_voltage(self) -> float:
-        return (self._adc.read_u16() / 65_535) * self._correction_val
+        return round((self._adc.read_u16() / 65_535) * self._correction_val, 2)
+

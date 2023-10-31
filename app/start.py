@@ -105,6 +105,50 @@ def mqtt_setup_subscriptions( client: MQTTClient, subscriptions: dict ) -> None:
     except Exception as err:
         print(f"Exception: {err}")
 
+def adjust_system():
+    
+    # Check the current case temp and see if it's below 34
+    
+    # If the case temp is below the minimum discharge (-20c (4f)) temp,  then turn on
+    # the heaters, regardless of the time of day.
+    # matter what.
+    if case.get_temp_C < -20:
+        # If the heater temps are less than 50
+        if heater_upper.get_temp_C < 10:
+            heater_upper.activate()
+        else:
+            heater_upper.deactivate()
+            
+        if heater_lower.get_temp_C < 10:
+            heater_lower.activate()
+        else:
+            heater_lower.deactivate()
+            
+    # If the case temp is below 1C (34F) and it's within daylight hours
+    # (6a-6p), then make sure the batteries are up to the safe charging
+    #temp (34F)
+    
+    if case.get_temp_C < 1 and  6 < time.localtime()[3] < 16:
+        # If the heater temps are less than 50
+        if heater_upper.get_temp_C < 10:
+            heater_upper.activate()
+        else:
+            heater_upper.deactivate()
+            
+        if heater_lower.get_temp_C < 10:
+            heater_lower.activate()
+        else:
+            heater_lower.deactivate()
+    
+    # BATTERY LEVELS
+    # Put the voltage-based rules here. Since the voltage divider needs some more
+    # work, I've left this part out.
+    # If voltage below 10.2 volts (10v is the minimum), then send a message to the
+    # Raspberry Pi to shutdown and then after the "ACK" comes back from the Pi, then
+    # Turn off the 5v relay.
+            
+
+
 def main() -> None:
     global reset_requested
     
@@ -199,6 +243,9 @@ def main() -> None:
                 
                 gc.collect()
                 
+                # Set whether the heaters are on.
+                adjust_system()
+                
                 time.sleep_ms(200)
                 
         except Exception as err:
@@ -221,5 +268,6 @@ def main() -> None:
 
 
 main()
+
 
 

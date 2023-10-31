@@ -9,7 +9,7 @@ class PressureTempSensor:
     @property
     def temp_C(self) -> float:
         return round(self._bmp.temperature,2)
-    
+
     @property
     def pressure_Pa(self) -> float:
         return self._bmp.pressure
@@ -23,7 +23,6 @@ class PressureTempSensor:
         # millibar == 100 Pascal 
         return self._bmp.pressure / 100
 
-    
     def __init__(self, scl_pin_num: int, sda_pin_num: int ):
         bus = SoftI2C(scl= Pin(scl_pin_num),sda=Pin(sda_pin_num))
         self._bmp = BMP280(bus)
@@ -41,4 +40,6 @@ class PressureTempSensor:
         
         self._bmp.power_mode = BMP280_POWER_SLEEP
 
+    def take_measurement(self) -> tuple:
+        return ( self.temp_C, self.pressure_Pa )
 

@@ -4,7 +4,6 @@ import machine
 from app.lib.ota_updater import OTAUpdater
 
 import app.utils as utils
-from app.utils import YELLOW, GREEN
 import app.secrets as secrets
 
 
@@ -17,7 +16,7 @@ def download_and_install_update_if_available():
     # download and install any new versions.
     
     try_count = 1
-    while try_count <= 5:
+    while try_count == 5:
         try:
             if o.install_update_if_available():
                 machine.reset()
@@ -26,19 +25,30 @@ def download_and_install_update_if_available():
         except OSError as err:
             try_count += 1
             print(f"OSERROR: {err}")
-            utils.flash_rgb( try_count, RED, 200 )
+            utils.flash_rgb( try_count, utils.RED, 200 )
     
         try_count += 1
 
+    
+
 def initialize():
-    utils.flash_rgb(3, GREEN, 200)
                     
     # Connect to wifi and start the app
-    utils.connect_to_wifi()
+    connected = utils.connect_to_wifi()
+
+    
+    # Put the system into deep sleep for 1 minute before restarting
+    # and trying again.
+    if not connected:
+        print('Sleeping')
+        machine.sleep( 30 )
+        machine.reset()
+
     
     # Attempt to sync the RTC with the NTP server.
     # If successful, adjust the system's localtime with
     # the provided UTC offset.
+    
     if utils.sync_time_with_ntp():
         utils.apply_utc_offset_to_rtc(secrets.UTC_OFFSET)
     
@@ -46,21 +56,26 @@ def initialize():
     utils.record_boot_time()
 
     # Check for updates
-    download_and_install_update_if_available()
-
+    ####  download_and_install_update_if_available()
+    
+    gc.collect()
 
 def start_app():
     """
     
-    Simple entrypoint for the app
+    Entrypoint for the app
     
     """
-    
+
+    utils.flash_rgb(3, utils.GREEN)
+
     import app.start
 
 
+utils.flash_rgb( 1, utils.PURPLE )
+utils.flash_rgb( 1, (50,50,50) )
+utils.flash_rgb( 1, utils.PURPLE )
+
 initialize()
 start_app()
-
-
 

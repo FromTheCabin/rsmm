@@ -30,9 +30,9 @@ class Relay:
         self._pin.off()
     
     def __repr__(self):
- 
         return f'Relay(pin={self._pin}, relay_on={self.relay_on})'
     
     def __str__(self):
         return __repr__()
+
 

@@ -37,3 +37,4 @@ class TemperatureSensor:
         self._ds_sensor.convert_temp()
         return round(self._ds_sensor.read_temp(self._rom), 2)
 
+

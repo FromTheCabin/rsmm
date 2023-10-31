@@ -6,16 +6,32 @@ import neopixel
 import app.secrets as secrets
 
 
+YELLOW = (50,50,0)
+RED = ( 50,0,0)
+GREEN = (0,50,0)
+BLUE = (0,0,50)
+PURPLE = (50,0,50)
+
 def format_time( datetimetuple ) -> str:
-    return f"{datetimetuple[3]}:{datetimetuple[4]:02}:{datetimetuple[5]:02}"
+    try:
+        return f"{datetimetuple[3]}:{datetimetuple[4]:02}:{datetimetuple[5]:02}"
+    except:
+        pass
     
 def format_date( datetimetuple ) -> str:
-    return f"{datetimetuple[0]}-{datetimetuple[1]:02}-{datetimetuple[3]:02}"
+    try:
+        return f"{datetimetuple[0]}-{datetimetuple[1]:02}-{datetimetuple[3]:02}"
+    except:
+        pass
 
 def format_datetimetuple( datetimetuple ) -> str:
-    return f"{format_date(datetimetuple)} {format_time(datetimetuple)}"
+    try:
+        return f"{format_date(datetimetuple)} {format_time(datetimetuple)}"
+    except:
+        pass
 
-def connect_to_wifi() -> None:
+def connect_to_wifi() -> bool:
+    connected = False
     # Set the hostname for easier identification on the router.
     network.hostname(secrets.HOSTNAME)
     
@@ -25,6 +41,8 @@ def connect_to_wifi() -> None:
         print("Disconnect called")
         wlan.disconnect()
 
+    time.sleep_ms(500)
+    
     if not wlan.active():
         print("Activating WiFi")
         wlan.active(True)
@@ -37,11 +55,15 @@ def connect_to_wifi() -> None:
         wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASSWORD)
         while not wlan.isconnected():
             machine.idle() # save power while waiting
-        print('WLAN connection succeeded!')        
+        print('WLAN connection succeeded!')
+        connected = True
     else:
         print(f"{secrets.WIFI_SSID} not found!")
         print("SSIDs available:")
         print(ssids)
+        
+    return connected
+
 
 def disconnect_from_wifi():
     wlan = network.WLAN(network.STA_IF)
@@ -49,18 +71,7 @@ def disconnect_from_wifi():
     if wlan.isconnected():
         wlan.disconnect()
         wlan.active(False)
-    
 
-def flash_rgb( count: int = 3, color = (50,0,0) ) -> None:
-    pixels = neopixel.NeoPixel(Pin(48),1)
-    
-    for i in range(0,count):
-        pixels.fill( color )
-        pixels.write()
-        time.sleep_ms(500)
-        pixels.fill( (0,0,0) )
-        pixels.write()
-        time.sleep_ms(500)
     
 def log_message( message: str, severity: str = 'INFO' ) -> None:
     try:
@@ -129,4 +140,55 @@ def sync_time_with_ntp(retries: int = 5) -> bool:
     
     return sync_successful
 
+
+def flash_rgb( count: int = 3, color = (50,0,0), rate = 500 ) -> None:
+    pixels = neopixel.NeoPixel(machine.Pin(48),1)
+    
+    toggle = True
+    
+    while count > 0:
+        if toggle:
+            pixels.fill( color )
+            count -= 1
+        else:
+            pixels.fill( (0,0,0) )
+            
+        pixels.write()
+        time.sleep_ms(rate)
+        toggle = not toggle
+        
+    pixels.fill( (0,0,0) )
+    pixels.write()
+    
+def app_version():
+    version = '0.0'
+    try:
+        with open('/app/.version') as f:
+            version = f.readline()
+    except:
+        pass
+    
+    return version
+
+
+def record_boot_time():
+    boot_time = None
+    with open( '.boot_time', 'a' ) as f:
+        f.write( f"\n{time.time()}")
+    
+def last_boot_time() -> str:
+    boot_time = '0'
+    try:
+        with open( '.boot_time', 'r') as f:
+            lines = f.readlines()
+            boot_time = lines[-1]
+    
+        boot_time = time.localtime(int(boot_time))
+        
+        return format_datetimetuple(boot_time)
+        
+    except:
+        pass
+    
+    return boot_time
 

@@ -112,14 +112,14 @@ def adjust_system():
     # If the case temp is below the minimum discharge (-20c (4f)) temp,  then turn on
     # the heaters, regardless of the time of day.
     # matter what.
-    if case.get_temp_C < -20:
+    if case.temp_C < -20:
         # If the heater temps are less than 50
-        if heater_upper.get_temp_C < 10:
+        if heater_upper.temp_C < 10:
             heater_upper.activate()
         else:
             heater_upper.deactivate()
             
-        if heater_lower.get_temp_C < 10:
+        if heater_lower.temp_C < 10:
             heater_lower.activate()
         else:
             heater_lower.deactivate()
@@ -128,14 +128,14 @@ def adjust_system():
     # (6a-6p), then make sure the batteries are up to the safe charging
     #temp (34F)
     
-    if case.get_temp_C < 1 and  6 < time.localtime()[3] < 16:
+    if case.temp_C < 1 and  6 < time.localtime()[3] < 16:
         # If the heater temps are less than 50
-        if heater_upper.get_temp_C < 10:
+        if heater_upper.temp_C < 10:
             heater_upper.activate()
         else:
             heater_upper.deactivate()
             
-        if heater_lower.get_temp_C < 10:
+        if heater_lower.temp_C < 10:
             heater_lower.activate()
         else:
             heater_lower.deactivate()
